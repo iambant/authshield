@@ -53,7 +53,7 @@ const {
   postLoginReporter,
   tokenGuard,
   revokeHandler,
-} = require("@yourname/auth-shield");
+} = require("@iambant/authshield");
 
 const app = express();
 app.use(express.json());
