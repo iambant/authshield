@@ -5,7 +5,7 @@ Embeddable middleware for Node.js authentication protection.
 ## Install
 
 ```bash
-npm i @yourname/auth-shield
+npm WILL BE LATER
 ```
 
 ## Quick start (TypeScript)
