@@ -1,0 +1,67 @@
+{
+  "name": "authshield-js",
+  "version": "0.1.1",
+  "description": "Embeddable Node.js middleware library to detect and mitigate authentication account attacks.",
+  "author": "iambant",
+  "homepage": "https://github.com/iambant/authshield#readme",
+  "bugs": {
+    "url": "https://github.com/iambant/authshield/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iambant/authshield.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "node node_modules/typescript/bin/tsc -p tsconfig.json",
+    "test": "node node_modules/vitest/vitest.mjs run",
+    "typecheck": "node node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "release:check": "npm run typecheck && npm test && npm run build && npm pack --dry-run",
+    "update:disposable-domains": "sh scripts/update-disposable-domains.sh",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "security",
+    "authentication",
+    "authentication-security",
+    "account-protection",
+    "bot-protection",
+    "middleware",
+    "redis",
+    "express"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "ioredis": "^5.4.1"
+  },
+  "peerDependencies": {
+    "express": "^4.17.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "express": "^4.19.2",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
+  }
+}
