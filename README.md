@@ -57,6 +57,11 @@ const shield = authShield({
   onIncident: (incident) => {
     console.log("[authshield]", incident.attackType, incident.reason);
   },
+  onDecision: ({ flow, decision }) => {
+    if (flow === "login" && decision.action === "block_ip") {
+      console.log("Security action:", decision.action);
+    }
+  },
 });
 
 app.post("/login", preLoginGuard(shield), loginHandler, postLoginReporter(shield));
@@ -144,19 +149,48 @@ npm run update:disposable-domains
 - `block_ip`
 - `revoke_token`
 
+## Decision hooks for integrators
+
+AuthShield can notify the host application about incidents and final decisions:
+
+- `onIncident(incident)` is called for each detected incident.
+- `onDecision(payload)` is called with the final decision for the current flow.
+
+The final decision payload contains:
+
+- `flow`: `pre_login_guard`, `login`, `pre_registration_guard`, `registration`, or `token`
+- `decision.allowed`: whether the request was allowed by AuthShield
+- `decision.action`: `allow`, `challenge_login`, `block_ip`, or `revoke_token`
+- `decision.incidents`: the incidents that contributed to the decision
+
+This hook is intended for application-specific reactions. AuthShield itself does not send notifications, disable users in your database, or call third-party APIs automatically. The integrator can use `decision.action` to trigger their own logic, for example:
+
+- show an internal admin notification
+- write to SIEM / audit log
+- increment a fraud score in the application
+- flag the account for manual review
+- invoke a custom security workflow
+
+Example:
+
+```ts
+const shield = authShield({
+  mode: "enforce",
+  onDecision: async ({ flow, event, decision }) => {
+    if (flow === "login" && decision.action === "block_ip") {
+      console.log("Blocked IP after login attack", event.ip);
+    }
+
+    if (flow === "token" && decision.action === "revoke_token") {
+      console.log("Revoked suspicious session", event.sessionId);
+    }
+  },
+});
+```
+
+If `postLoginReporter` or `postRegistrationReporter` is used after the application handler, the handler should call `next()` so AuthShield can compute and emit the final decision.
+
 ## Notes
 
 - Use only in controlled/lab environments.
 - Intended for defensive security research and adversary simulation.
-
-## Release (GitHub + npm)
-
-1. `npm run typecheck`
-2. `npm test`
-3. `npm run build`
-4. `npm pack --dry-run`
-5. `npm version patch` (or `minor` / `major`)
-6. `git add . && git commit -m "release: vX.Y.Z"`
-7. `git tag vX.Y.Z`
-8. `git push origin main --tags`
-9. `npm publish --access public`
